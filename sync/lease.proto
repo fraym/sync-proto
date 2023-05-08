@@ -1,0 +1,25 @@
+syntax = "proto3";
+package sync;
+
+message CreateLeaseRequest {
+	string ip = 1;
+	string app = 2;
+	int32 ttl = 3;
+}
+
+message CreateLeaseResponse {
+	string leaseId = 1;
+}
+
+message KeepLeaseRequest {
+	string leaseId = 1;
+	int32 ttl = 2;
+}
+
+message KeepLeaseResponse {}
+
+message DropLeaseRequest {
+	string leaseId = 1;
+}
+
+message DropLeaseResponse {}

@@ -1,0 +1,36 @@
+syntax = "proto3";
+package sync;
+
+message LocalLockRequest {
+	string leaseId = 1;
+	string tenantId = 2;
+	string globalConcern = 3;
+	string localConcern = 4;
+}
+
+message LocalLockResponse {}
+
+message LocalUnlockRequest {
+	string leaseId = 1;
+	string tenantId = 2;
+	string globalConcern = 3;
+	string localConcern = 4;
+}
+
+message LocalUnlockResponse {}
+
+message GlobalLockRequest {
+	string leaseId = 1;
+	string tenantId = 2;
+	string globalConcern = 3;
+}
+
+message GlobalLockResponse {}
+
+message GlobalUnlockRequest {
+	string leaseId = 1;
+	string tenantId = 2;
+	string globalConcern = 3;
+}
+
+message GlobalUnlockResponse {}

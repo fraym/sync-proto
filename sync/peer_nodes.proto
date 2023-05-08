@@ -1,0 +1,10 @@
+syntax = "proto3";
+package sync;
+
+message GetPeerNodesRequest {
+	string app = 1;
+}
+
+message GetPeerNodesResponse {
+	repeated string peerNodeIp = 1;
+}

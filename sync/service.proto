@@ -1,0 +1,18 @@
+syntax = "proto3";
+package sync;
+import "sync/lease.proto";
+import "sync/peer_nodes.proto";
+import "sync/lock.proto";
+  
+service Service {
+	rpc CreateLease(stream CreateLeaseRequest) returns (stream CreateLeaseResponse);
+	rpc KeepLease(stream KeepLeaseRequest) returns (stream KeepLeaseResponse);
+	rpc DropLease(stream DropLeaseRequest) returns (stream DropLeaseResponse);
+
+	rpc GetPeerNodes(GetPeerNodesRequest) returns (GetPeerNodesResponse);
+
+	rpc LocalLock(LocalLockRequest) returns (LocalLockResponse);
+	rpc LocalUnlock(LocalUnlockRequest) returns (LocalUnlockResponse);
+	rpc GlobalLock(GlobalLockRequest) returns (GlobalLockResponse);
+	rpc GlobalUnlock(GlobalUnlockRequest) returns (GlobalUnlockResponse);
+}
