@@ -1,3 +1,7 @@
+# v0.2.0
+
+- (bc) Change peer node response to stream
+
 # v0.1.0
 
 - (bc) Remove streaming from lease api

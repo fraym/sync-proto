@@ -4,7 +4,9 @@ import {
   ChannelCredentials,
   Client,
   ClientOptions,
+  ClientReadableStream,
   ClientUnaryCall,
+  handleServerStreamingCall,
   handleUnaryCall,
   makeGenericClientConstructor,
   Metadata,
@@ -65,7 +67,7 @@ export const ServiceService = {
   getPeerNodes: {
     path: "/sync.Service/GetPeerNodes",
     requestStream: false,
-    responseStream: false,
+    responseStream: true,
     requestSerialize: (value: GetPeerNodesRequest) => Buffer.from(GetPeerNodesRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => GetPeerNodesRequest.decode(value),
     responseSerialize: (value: GetPeerNodesResponse) => Buffer.from(GetPeerNodesResponse.encode(value).finish()),
@@ -113,7 +115,7 @@ export interface ServiceServer extends UntypedServiceImplementation {
   createLease: handleUnaryCall<CreateLeaseRequest, CreateLeaseResponse>;
   keepLease: handleUnaryCall<KeepLeaseRequest, KeepLeaseResponse>;
   dropLease: handleUnaryCall<DropLeaseRequest, DropLeaseResponse>;
-  getPeerNodes: handleUnaryCall<GetPeerNodesRequest, GetPeerNodesResponse>;
+  getPeerNodes: handleServerStreamingCall<GetPeerNodesRequest, GetPeerNodesResponse>;
   localLock: handleUnaryCall<LocalLockRequest, LocalLockResponse>;
   localUnlock: handleUnaryCall<LocalUnlockRequest, LocalUnlockResponse>;
   globalLock: handleUnaryCall<GlobalLockRequest, GlobalLockResponse>;
@@ -168,19 +170,13 @@ export interface ServiceClient extends Client {
   ): ClientUnaryCall;
   getPeerNodes(
     request: GetPeerNodesRequest,
-    callback: (error: ServiceError | null, response: GetPeerNodesResponse) => void,
-  ): ClientUnaryCall;
+    options?: Partial<CallOptions>,
+  ): ClientReadableStream<GetPeerNodesResponse>;
   getPeerNodes(
     request: GetPeerNodesRequest,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: GetPeerNodesResponse) => void,
-  ): ClientUnaryCall;
-  getPeerNodes(
-    request: GetPeerNodesRequest,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: GetPeerNodesResponse) => void,
-  ): ClientUnaryCall;
+    metadata?: Metadata,
+    options?: Partial<CallOptions>,
+  ): ClientReadableStream<GetPeerNodesResponse>;
   localLock(
     request: LocalLockRequest,
     callback: (error: ServiceError | null, response: LocalLockResponse) => void,

@@ -25,7 +25,7 @@ type ServiceClient interface {
 	CreateLease(ctx context.Context, in *CreateLeaseRequest, opts ...grpc.CallOption) (*CreateLeaseResponse, error)
 	KeepLease(ctx context.Context, in *KeepLeaseRequest, opts ...grpc.CallOption) (*KeepLeaseResponse, error)
 	DropLease(ctx context.Context, in *DropLeaseRequest, opts ...grpc.CallOption) (*DropLeaseResponse, error)
-	GetPeerNodes(ctx context.Context, in *GetPeerNodesRequest, opts ...grpc.CallOption) (*GetPeerNodesResponse, error)
+	GetPeerNodes(ctx context.Context, in *GetPeerNodesRequest, opts ...grpc.CallOption) (Service_GetPeerNodesClient, error)
 	LocalLock(ctx context.Context, in *LocalLockRequest, opts ...grpc.CallOption) (*LocalLockResponse, error)
 	LocalUnlock(ctx context.Context, in *LocalUnlockRequest, opts ...grpc.CallOption) (*LocalUnlockResponse, error)
 	GlobalLock(ctx context.Context, in *GlobalLockRequest, opts ...grpc.CallOption) (*GlobalLockResponse, error)
@@ -67,13 +67,36 @@ func (c *serviceClient) DropLease(ctx context.Context, in *DropLeaseRequest, opt
 	return out, nil
 }
 
-func (c *serviceClient) GetPeerNodes(ctx context.Context, in *GetPeerNodesRequest, opts ...grpc.CallOption) (*GetPeerNodesResponse, error) {
-	out := new(GetPeerNodesResponse)
-	err := c.cc.Invoke(ctx, "/sync.Service/GetPeerNodes", in, out, opts...)
+func (c *serviceClient) GetPeerNodes(ctx context.Context, in *GetPeerNodesRequest, opts ...grpc.CallOption) (Service_GetPeerNodesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[0], "/sync.Service/GetPeerNodes", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &serviceGetPeerNodesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Service_GetPeerNodesClient interface {
+	Recv() (*GetPeerNodesResponse, error)
+	grpc.ClientStream
+}
+
+type serviceGetPeerNodesClient struct {
+	grpc.ClientStream
+}
+
+func (x *serviceGetPeerNodesClient) Recv() (*GetPeerNodesResponse, error) {
+	m := new(GetPeerNodesResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *serviceClient) LocalLock(ctx context.Context, in *LocalLockRequest, opts ...grpc.CallOption) (*LocalLockResponse, error) {
@@ -119,7 +142,7 @@ type ServiceServer interface {
 	CreateLease(context.Context, *CreateLeaseRequest) (*CreateLeaseResponse, error)
 	KeepLease(context.Context, *KeepLeaseRequest) (*KeepLeaseResponse, error)
 	DropLease(context.Context, *DropLeaseRequest) (*DropLeaseResponse, error)
-	GetPeerNodes(context.Context, *GetPeerNodesRequest) (*GetPeerNodesResponse, error)
+	GetPeerNodes(*GetPeerNodesRequest, Service_GetPeerNodesServer) error
 	LocalLock(context.Context, *LocalLockRequest) (*LocalLockResponse, error)
 	LocalUnlock(context.Context, *LocalUnlockRequest) (*LocalUnlockResponse, error)
 	GlobalLock(context.Context, *GlobalLockRequest) (*GlobalLockResponse, error)
@@ -140,8 +163,8 @@ func (UnimplementedServiceServer) KeepLease(context.Context, *KeepLeaseRequest) 
 func (UnimplementedServiceServer) DropLease(context.Context, *DropLeaseRequest) (*DropLeaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DropLease not implemented")
 }
-func (UnimplementedServiceServer) GetPeerNodes(context.Context, *GetPeerNodesRequest) (*GetPeerNodesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPeerNodes not implemented")
+func (UnimplementedServiceServer) GetPeerNodes(*GetPeerNodesRequest, Service_GetPeerNodesServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetPeerNodes not implemented")
 }
 func (UnimplementedServiceServer) LocalLock(context.Context, *LocalLockRequest) (*LocalLockResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LocalLock not implemented")
@@ -222,22 +245,25 @@ func _Service_DropLease_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_GetPeerNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetPeerNodesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _Service_GetPeerNodes_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetPeerNodesRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(ServiceServer).GetPeerNodes(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/sync.Service/GetPeerNodes",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).GetPeerNodes(ctx, req.(*GetPeerNodesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(ServiceServer).GetPeerNodes(m, &serviceGetPeerNodesServer{stream})
+}
+
+type Service_GetPeerNodesServer interface {
+	Send(*GetPeerNodesResponse) error
+	grpc.ServerStream
+}
+
+type serviceGetPeerNodesServer struct {
+	grpc.ServerStream
+}
+
+func (x *serviceGetPeerNodesServer) Send(m *GetPeerNodesResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _Service_LocalLock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -332,10 +358,6 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Service_DropLease_Handler,
 		},
 		{
-			MethodName: "GetPeerNodes",
-			Handler:    _Service_GetPeerNodes_Handler,
-		},
-		{
 			MethodName: "LocalLock",
 			Handler:    _Service_LocalLock_Handler,
 		},
@@ -352,6 +374,12 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Service_GlobalUnlock_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GetPeerNodes",
+			Handler:       _Service_GetPeerNodes_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "sync/service.proto",
 }
