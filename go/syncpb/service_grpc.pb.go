@@ -22,9 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
-	CreateLease(ctx context.Context, opts ...grpc.CallOption) (Service_CreateLeaseClient, error)
-	KeepLease(ctx context.Context, opts ...grpc.CallOption) (Service_KeepLeaseClient, error)
-	DropLease(ctx context.Context, opts ...grpc.CallOption) (Service_DropLeaseClient, error)
+	CreateLease(ctx context.Context, in *CreateLeaseRequest, opts ...grpc.CallOption) (*CreateLeaseResponse, error)
+	KeepLease(ctx context.Context, in *KeepLeaseRequest, opts ...grpc.CallOption) (*KeepLeaseResponse, error)
+	DropLease(ctx context.Context, in *DropLeaseRequest, opts ...grpc.CallOption) (*DropLeaseResponse, error)
 	GetPeerNodes(ctx context.Context, in *GetPeerNodesRequest, opts ...grpc.CallOption) (*GetPeerNodesResponse, error)
 	LocalLock(ctx context.Context, in *LocalLockRequest, opts ...grpc.CallOption) (*LocalLockResponse, error)
 	LocalUnlock(ctx context.Context, in *LocalUnlockRequest, opts ...grpc.CallOption) (*LocalUnlockResponse, error)
@@ -40,97 +40,31 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
 }
 
-func (c *serviceClient) CreateLease(ctx context.Context, opts ...grpc.CallOption) (Service_CreateLeaseClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[0], "/sync.Service/CreateLease", opts...)
+func (c *serviceClient) CreateLease(ctx context.Context, in *CreateLeaseRequest, opts ...grpc.CallOption) (*CreateLeaseResponse, error) {
+	out := new(CreateLeaseResponse)
+	err := c.cc.Invoke(ctx, "/sync.Service/CreateLease", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &serviceCreateLeaseClient{stream}
-	return x, nil
+	return out, nil
 }
 
-type Service_CreateLeaseClient interface {
-	Send(*CreateLeaseRequest) error
-	Recv() (*CreateLeaseResponse, error)
-	grpc.ClientStream
-}
-
-type serviceCreateLeaseClient struct {
-	grpc.ClientStream
-}
-
-func (x *serviceCreateLeaseClient) Send(m *CreateLeaseRequest) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *serviceCreateLeaseClient) Recv() (*CreateLeaseResponse, error) {
-	m := new(CreateLeaseResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *serviceClient) KeepLease(ctx context.Context, opts ...grpc.CallOption) (Service_KeepLeaseClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[1], "/sync.Service/KeepLease", opts...)
+func (c *serviceClient) KeepLease(ctx context.Context, in *KeepLeaseRequest, opts ...grpc.CallOption) (*KeepLeaseResponse, error) {
+	out := new(KeepLeaseResponse)
+	err := c.cc.Invoke(ctx, "/sync.Service/KeepLease", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &serviceKeepLeaseClient{stream}
-	return x, nil
+	return out, nil
 }
 
-type Service_KeepLeaseClient interface {
-	Send(*KeepLeaseRequest) error
-	Recv() (*KeepLeaseResponse, error)
-	grpc.ClientStream
-}
-
-type serviceKeepLeaseClient struct {
-	grpc.ClientStream
-}
-
-func (x *serviceKeepLeaseClient) Send(m *KeepLeaseRequest) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *serviceKeepLeaseClient) Recv() (*KeepLeaseResponse, error) {
-	m := new(KeepLeaseResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *serviceClient) DropLease(ctx context.Context, opts ...grpc.CallOption) (Service_DropLeaseClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[2], "/sync.Service/DropLease", opts...)
+func (c *serviceClient) DropLease(ctx context.Context, in *DropLeaseRequest, opts ...grpc.CallOption) (*DropLeaseResponse, error) {
+	out := new(DropLeaseResponse)
+	err := c.cc.Invoke(ctx, "/sync.Service/DropLease", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &serviceDropLeaseClient{stream}
-	return x, nil
-}
-
-type Service_DropLeaseClient interface {
-	Send(*DropLeaseRequest) error
-	Recv() (*DropLeaseResponse, error)
-	grpc.ClientStream
-}
-
-type serviceDropLeaseClient struct {
-	grpc.ClientStream
-}
-
-func (x *serviceDropLeaseClient) Send(m *DropLeaseRequest) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *serviceDropLeaseClient) Recv() (*DropLeaseResponse, error) {
-	m := new(DropLeaseResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 func (c *serviceClient) GetPeerNodes(ctx context.Context, in *GetPeerNodesRequest, opts ...grpc.CallOption) (*GetPeerNodesResponse, error) {
@@ -182,9 +116,9 @@ func (c *serviceClient) GlobalUnlock(ctx context.Context, in *GlobalUnlockReques
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility
 type ServiceServer interface {
-	CreateLease(Service_CreateLeaseServer) error
-	KeepLease(Service_KeepLeaseServer) error
-	DropLease(Service_DropLeaseServer) error
+	CreateLease(context.Context, *CreateLeaseRequest) (*CreateLeaseResponse, error)
+	KeepLease(context.Context, *KeepLeaseRequest) (*KeepLeaseResponse, error)
+	DropLease(context.Context, *DropLeaseRequest) (*DropLeaseResponse, error)
 	GetPeerNodes(context.Context, *GetPeerNodesRequest) (*GetPeerNodesResponse, error)
 	LocalLock(context.Context, *LocalLockRequest) (*LocalLockResponse, error)
 	LocalUnlock(context.Context, *LocalUnlockRequest) (*LocalUnlockResponse, error)
@@ -197,14 +131,14 @@ type ServiceServer interface {
 type UnimplementedServiceServer struct {
 }
 
-func (UnimplementedServiceServer) CreateLease(Service_CreateLeaseServer) error {
-	return status.Errorf(codes.Unimplemented, "method CreateLease not implemented")
+func (UnimplementedServiceServer) CreateLease(context.Context, *CreateLeaseRequest) (*CreateLeaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateLease not implemented")
 }
-func (UnimplementedServiceServer) KeepLease(Service_KeepLeaseServer) error {
-	return status.Errorf(codes.Unimplemented, "method KeepLease not implemented")
+func (UnimplementedServiceServer) KeepLease(context.Context, *KeepLeaseRequest) (*KeepLeaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method KeepLease not implemented")
 }
-func (UnimplementedServiceServer) DropLease(Service_DropLeaseServer) error {
-	return status.Errorf(codes.Unimplemented, "method DropLease not implemented")
+func (UnimplementedServiceServer) DropLease(context.Context, *DropLeaseRequest) (*DropLeaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DropLease not implemented")
 }
 func (UnimplementedServiceServer) GetPeerNodes(context.Context, *GetPeerNodesRequest) (*GetPeerNodesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPeerNodes not implemented")
@@ -234,82 +168,58 @@ func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
 	s.RegisterService(&Service_ServiceDesc, srv)
 }
 
-func _Service_CreateLease_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ServiceServer).CreateLease(&serviceCreateLeaseServer{stream})
-}
-
-type Service_CreateLeaseServer interface {
-	Send(*CreateLeaseResponse) error
-	Recv() (*CreateLeaseRequest, error)
-	grpc.ServerStream
-}
-
-type serviceCreateLeaseServer struct {
-	grpc.ServerStream
-}
-
-func (x *serviceCreateLeaseServer) Send(m *CreateLeaseResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *serviceCreateLeaseServer) Recv() (*CreateLeaseRequest, error) {
-	m := new(CreateLeaseRequest)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _Service_CreateLease_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateLeaseRequest)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(ServiceServer).CreateLease(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/sync.Service/CreateLease",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).CreateLease(ctx, req.(*CreateLeaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_KeepLease_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ServiceServer).KeepLease(&serviceKeepLeaseServer{stream})
-}
-
-type Service_KeepLeaseServer interface {
-	Send(*KeepLeaseResponse) error
-	Recv() (*KeepLeaseRequest, error)
-	grpc.ServerStream
-}
-
-type serviceKeepLeaseServer struct {
-	grpc.ServerStream
-}
-
-func (x *serviceKeepLeaseServer) Send(m *KeepLeaseResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *serviceKeepLeaseServer) Recv() (*KeepLeaseRequest, error) {
-	m := new(KeepLeaseRequest)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _Service_KeepLease_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(KeepLeaseRequest)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(ServiceServer).KeepLease(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/sync.Service/KeepLease",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).KeepLease(ctx, req.(*KeepLeaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_DropLease_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ServiceServer).DropLease(&serviceDropLeaseServer{stream})
-}
-
-type Service_DropLeaseServer interface {
-	Send(*DropLeaseResponse) error
-	Recv() (*DropLeaseRequest, error)
-	grpc.ServerStream
-}
-
-type serviceDropLeaseServer struct {
-	grpc.ServerStream
-}
-
-func (x *serviceDropLeaseServer) Send(m *DropLeaseResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *serviceDropLeaseServer) Recv() (*DropLeaseRequest, error) {
-	m := new(DropLeaseRequest)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _Service_DropLease_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DropLeaseRequest)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(ServiceServer).DropLease(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/sync.Service/DropLease",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).DropLease(ctx, req.(*DropLeaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_GetPeerNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -410,6 +320,18 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "CreateLease",
+			Handler:    _Service_CreateLease_Handler,
+		},
+		{
+			MethodName: "KeepLease",
+			Handler:    _Service_KeepLease_Handler,
+		},
+		{
+			MethodName: "DropLease",
+			Handler:    _Service_DropLease_Handler,
+		},
+		{
 			MethodName: "GetPeerNodes",
 			Handler:    _Service_GetPeerNodes_Handler,
 		},
@@ -430,25 +352,6 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Service_GlobalUnlock_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "CreateLease",
-			Handler:       _Service_CreateLease_Handler,
-			ServerStreams: true,
-			ClientStreams: true,
-		},
-		{
-			StreamName:    "KeepLease",
-			Handler:       _Service_KeepLease_Handler,
-			ServerStreams: true,
-			ClientStreams: true,
-		},
-		{
-			StreamName:    "DropLease",
-			Handler:       _Service_DropLease_Handler,
-			ServerStreams: true,
-			ClientStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "sync/service.proto",
 }

@@ -5,9 +5,9 @@ import "sync/peer_nodes.proto";
 import "sync/lock.proto";
   
 service Service {
-	rpc CreateLease(stream CreateLeaseRequest) returns (stream CreateLeaseResponse);
-	rpc KeepLease(stream KeepLeaseRequest) returns (stream KeepLeaseResponse);
-	rpc DropLease(stream DropLeaseRequest) returns (stream DropLeaseResponse);
+	rpc CreateLease(CreateLeaseRequest) returns (CreateLeaseResponse);
+	rpc KeepLease(KeepLeaseRequest) returns (KeepLeaseResponse);
+	rpc DropLease(DropLeaseRequest) returns (DropLeaseResponse);
 
 	rpc GetPeerNodes(GetPeerNodesRequest) returns (GetPeerNodesResponse);
 

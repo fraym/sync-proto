@@ -3,10 +3,8 @@ import {
   CallOptions,
   ChannelCredentials,
   Client,
-  ClientDuplexStream,
   ClientOptions,
   ClientUnaryCall,
-  handleBidiStreamingCall,
   handleUnaryCall,
   makeGenericClientConstructor,
   Metadata,
@@ -39,8 +37,8 @@ export type ServiceService = typeof ServiceService;
 export const ServiceService = {
   createLease: {
     path: "/sync.Service/CreateLease",
-    requestStream: true,
-    responseStream: true,
+    requestStream: false,
+    responseStream: false,
     requestSerialize: (value: CreateLeaseRequest) => Buffer.from(CreateLeaseRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => CreateLeaseRequest.decode(value),
     responseSerialize: (value: CreateLeaseResponse) => Buffer.from(CreateLeaseResponse.encode(value).finish()),
@@ -48,8 +46,8 @@ export const ServiceService = {
   },
   keepLease: {
     path: "/sync.Service/KeepLease",
-    requestStream: true,
-    responseStream: true,
+    requestStream: false,
+    responseStream: false,
     requestSerialize: (value: KeepLeaseRequest) => Buffer.from(KeepLeaseRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => KeepLeaseRequest.decode(value),
     responseSerialize: (value: KeepLeaseResponse) => Buffer.from(KeepLeaseResponse.encode(value).finish()),
@@ -57,8 +55,8 @@ export const ServiceService = {
   },
   dropLease: {
     path: "/sync.Service/DropLease",
-    requestStream: true,
-    responseStream: true,
+    requestStream: false,
+    responseStream: false,
     requestSerialize: (value: DropLeaseRequest) => Buffer.from(DropLeaseRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer) => DropLeaseRequest.decode(value),
     responseSerialize: (value: DropLeaseResponse) => Buffer.from(DropLeaseResponse.encode(value).finish()),
@@ -112,9 +110,9 @@ export const ServiceService = {
 } as const;
 
 export interface ServiceServer extends UntypedServiceImplementation {
-  createLease: handleBidiStreamingCall<CreateLeaseRequest, CreateLeaseResponse>;
-  keepLease: handleBidiStreamingCall<KeepLeaseRequest, KeepLeaseResponse>;
-  dropLease: handleBidiStreamingCall<DropLeaseRequest, DropLeaseResponse>;
+  createLease: handleUnaryCall<CreateLeaseRequest, CreateLeaseResponse>;
+  keepLease: handleUnaryCall<KeepLeaseRequest, KeepLeaseResponse>;
+  dropLease: handleUnaryCall<DropLeaseRequest, DropLeaseResponse>;
   getPeerNodes: handleUnaryCall<GetPeerNodesRequest, GetPeerNodesResponse>;
   localLock: handleUnaryCall<LocalLockRequest, LocalLockResponse>;
   localUnlock: handleUnaryCall<LocalUnlockRequest, LocalUnlockResponse>;
@@ -123,24 +121,51 @@ export interface ServiceServer extends UntypedServiceImplementation {
 }
 
 export interface ServiceClient extends Client {
-  createLease(): ClientDuplexStream<CreateLeaseRequest, CreateLeaseResponse>;
-  createLease(options: Partial<CallOptions>): ClientDuplexStream<CreateLeaseRequest, CreateLeaseResponse>;
   createLease(
+    request: CreateLeaseRequest,
+    callback: (error: ServiceError | null, response: CreateLeaseResponse) => void,
+  ): ClientUnaryCall;
+  createLease(
+    request: CreateLeaseRequest,
     metadata: Metadata,
-    options?: Partial<CallOptions>,
-  ): ClientDuplexStream<CreateLeaseRequest, CreateLeaseResponse>;
-  keepLease(): ClientDuplexStream<KeepLeaseRequest, KeepLeaseResponse>;
-  keepLease(options: Partial<CallOptions>): ClientDuplexStream<KeepLeaseRequest, KeepLeaseResponse>;
+    callback: (error: ServiceError | null, response: CreateLeaseResponse) => void,
+  ): ClientUnaryCall;
+  createLease(
+    request: CreateLeaseRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: CreateLeaseResponse) => void,
+  ): ClientUnaryCall;
   keepLease(
+    request: KeepLeaseRequest,
+    callback: (error: ServiceError | null, response: KeepLeaseResponse) => void,
+  ): ClientUnaryCall;
+  keepLease(
+    request: KeepLeaseRequest,
     metadata: Metadata,
-    options?: Partial<CallOptions>,
-  ): ClientDuplexStream<KeepLeaseRequest, KeepLeaseResponse>;
-  dropLease(): ClientDuplexStream<DropLeaseRequest, DropLeaseResponse>;
-  dropLease(options: Partial<CallOptions>): ClientDuplexStream<DropLeaseRequest, DropLeaseResponse>;
+    callback: (error: ServiceError | null, response: KeepLeaseResponse) => void,
+  ): ClientUnaryCall;
+  keepLease(
+    request: KeepLeaseRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: KeepLeaseResponse) => void,
+  ): ClientUnaryCall;
   dropLease(
+    request: DropLeaseRequest,
+    callback: (error: ServiceError | null, response: DropLeaseResponse) => void,
+  ): ClientUnaryCall;
+  dropLease(
+    request: DropLeaseRequest,
     metadata: Metadata,
-    options?: Partial<CallOptions>,
-  ): ClientDuplexStream<DropLeaseRequest, DropLeaseResponse>;
+    callback: (error: ServiceError | null, response: DropLeaseResponse) => void,
+  ): ClientUnaryCall;
+  dropLease(
+    request: DropLeaseRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: DropLeaseResponse) => void,
+  ): ClientUnaryCall;
   getPeerNodes(
     request: GetPeerNodesRequest,
     callback: (error: ServiceError | null, response: GetPeerNodesResponse) => void,
